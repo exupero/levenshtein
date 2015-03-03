@@ -1,9 +1,5 @@
 package levenshtein
 
-import (
-	"strings"
-)
-
 func count(start, stop int) []int {
 	var items []int
 	for i := start; i < stop; i++ {
@@ -30,11 +26,17 @@ func min(a ...int) int {
 	return m
 }
 
-func LevenshteinDistance(a, b string) int {
-	n, m := len(a), len(b)
+type LevenshteinPair interface {
+	Lengths() (int, int)
+	Swap()
+	EqualAtIndices(int, int) bool
+}
+
+func LevenshteinDistance(pair LevenshteinPair) int {
+	n, m := pair.Lengths()
 	// Make sure n <= m to use O(min(n,m)) space
 	if n > m {
-		a, b = b, a
+		pair.Swap()
 		n, m = m, n
 	}
 
@@ -45,7 +47,7 @@ func LevenshteinDistance(a, b string) int {
 		for j := 1; j <= n; j++ {
 			add, del := previous[j] + 1, current[j - 1] + 1
 			change := previous[j - 1]
-			if a[j - 1] != b[i - 1] {
+			if !pair.EqualAtIndices(j - 1, i - 1) {
 				change++
 			}
 			current[j] = min(add, del, change)
@@ -54,27 +56,34 @@ func LevenshteinDistance(a, b string) int {
 	return current[n]
 }
 
-func LevenshteinWordDistance(a, b string) int {
-	c, d := strings.Split(a, " "), strings.Split(b, " ")
-	n, m := len(c), len(d)
-	// Make sure n <= m to use O(min(n,m)) space
-	if n > m {
-		c, d = d, c
-		n, m = m, n
-	}
+type ByLetter struct {
+	a, b string
+}
 
-	current := count(0, n + 1)
-	var previous []int
-	for i := 1; i <= m; i++ {
-		previous, current = current, pad(i, n)
-		for j := 1; j <= n; j++ {
-			add, del := previous[j] + 1, current[j - 1] + 1
-			change := previous[j - 1]
-			if c[j - 1] != d[i - 1] {
-				change++
-			}
-			current[j] = min(add, del, change)
-		}
-	}
-	return current[n]
+func (p ByLetter) Lengths() (int, int) {
+	return len(p.a), len(p.b)
+}
+
+func (p ByLetter) Swap() {
+	p.a, p.b = p.b, p.a
+}
+
+func (p ByLetter) EqualAtIndices(i, j int) bool {
+	return p.a[i] == p.b[j]
+}
+
+type ByWord struct {
+	a, b []string
+}
+
+func (p ByWord) Lengths() (int, int) {
+	return len(p.a), len(p.b)
+}
+
+func (p ByWord) Swap() {
+	p.a, p.b = p.b, p.a
+}
+
+func (p ByWord) EqualAtIndices(i, j int) bool {
+	return p.a[i] == p.b[j]
 }
