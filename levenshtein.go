@@ -57,33 +57,33 @@ func LevenshteinDistance(pair LevenshteinPair) int {
 }
 
 type ByLetter struct {
-	a, b string
+	A, B string
 }
 
 func (p ByLetter) Lengths() (int, int) {
-	return len(p.a), len(p.b)
+	return len(p.A), len(p.B)
 }
 
 func (p ByLetter) Swap() {
-	p.a, p.b = p.b, p.a
+	p.A, p.B = p.B, p.A
 }
 
 func (p ByLetter) EqualAtIndices(i, j int) bool {
-	return p.a[i] == p.b[j]
+	return p.A[i] == p.B[j]
 }
 
 type ByWord struct {
-	a, b []string
+	A, B []string
 }
 
 func (p ByWord) Lengths() (int, int) {
-	return len(p.a), len(p.b)
+	return len(p.A), len(p.B)
 }
 
 func (p ByWord) Swap() {
-	p.a, p.b = p.b, p.a
+	p.A, p.B = p.B, p.A
 }
 
 func (p ByWord) EqualAtIndices(i, j int) bool {
-	return p.a[i] == p.b[j]
+	return p.A[i] == p.B[j]
 }
