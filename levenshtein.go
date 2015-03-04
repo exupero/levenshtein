@@ -28,15 +28,14 @@ func min(a ...int) int {
 
 type Sequence interface {
 	Length() int
-	Lengths() []int
+	Lengths(int, int) (int, int)
 	Swap(int, int)
 	Equal(int, int) bool
 	Pair(int, int) Sequence
 }
 
 func Distance(pair Sequence) int {
-	lengths := pair.Lengths()
-	n, m := lengths[0], lengths[1]
+	n, m := pair.Lengths(0, 1)
 	// Make sure n <= m to use O(min(n,m)) space
 	if n > m {
 		pair.Swap(0, 1)
@@ -65,12 +64,8 @@ func (p ByLetter) Length() int {
 	return len(p)
 }
 
-func (p ByLetter) Lengths() []int {
-	lengths := []int{}
-	for _, seq := range p {
-		lengths = append(lengths, len(seq))
-	}
-	return lengths
+func (p ByLetter) Lengths(i, j int) (int, int) {
+	return len(p[i]), len(p[j])
 }
 
 func (p ByLetter) Swap(i, j int) {
@@ -91,12 +86,8 @@ func (p ByWord) Length() int {
 	return len(p)
 }
 
-func (p ByWord) Lengths() []int {
-	lengths := []int{}
-	for _, seq := range p {
-		lengths = append(lengths, len(seq))
-	}
-	return lengths
+func (p ByWord) Lengths(i, j int) (int, int) {
+	return len(p[i]), len(p[j])
 }
 
 func (p ByWord) Swap(i, j int) {
