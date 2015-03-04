@@ -26,17 +26,20 @@ func min(a ...int) int {
 	return m
 }
 
-type LevenshteinPair interface {
-	Lengths() (int, int)
-	Swap()
-	EqualAtIndices(int, int) bool
+type Sequence interface {
+	Length() int
+	Lengths() []int
+	Swap(int, int)
+	Equal(int, int) bool
+	Pair(int, int) Sequence
 }
 
-func LevenshteinDistance(pair LevenshteinPair) int {
-	n, m := pair.Lengths()
+func Distance(pair Sequence) int {
+	lengths := pair.Lengths()
+	n, m := lengths[0], lengths[1]
 	// Make sure n <= m to use O(min(n,m)) space
 	if n > m {
-		pair.Swap()
+		pair.Swap(0, 1)
 		n, m = m, n
 	}
 
@@ -47,7 +50,7 @@ func LevenshteinDistance(pair LevenshteinPair) int {
 		for j := 1; j <= n; j++ {
 			add, del := previous[j] + 1, current[j - 1] + 1
 			change := previous[j - 1]
-			if !pair.EqualAtIndices(j - 1, i - 1) {
+			if !pair.Equal(j - 1, i - 1) {
 				change++
 			}
 			current[j] = min(add, del, change)
@@ -56,34 +59,54 @@ func LevenshteinDistance(pair LevenshteinPair) int {
 	return current[n]
 }
 
-type ByLetter struct {
-	A, B string
+type ByLetter []string
+
+func (p ByLetter) Length() int {
+	return len(p)
 }
 
-func (p ByLetter) Lengths() (int, int) {
-	return len(p.A), len(p.B)
+func (p ByLetter) Lengths() []int {
+	lengths := []int{}
+	for _, seq := range p {
+		lengths = append(lengths, len(seq))
+	}
+	return lengths
 }
 
-func (p ByLetter) Swap() {
-	p.A, p.B = p.B, p.A
+func (p ByLetter) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
 }
 
-func (p ByLetter) EqualAtIndices(i, j int) bool {
-	return p.A[i] == p.B[j]
+func (p ByLetter) Equal(i, j int) bool {
+	return p[0][i] == p[1][j]
 }
 
-type ByWord struct {
-	A, B []string
+func (p ByLetter) Pair(i, j int) Sequence {
+	return ByLetter{p[i], p[j]}
 }
 
-func (p ByWord) Lengths() (int, int) {
-	return len(p.A), len(p.B)
+type ByWord [][]string
+
+func (p ByWord) Length() int {
+	return len(p)
 }
 
-func (p ByWord) Swap() {
-	p.A, p.B = p.B, p.A
+func (p ByWord) Lengths() []int {
+	lengths := []int{}
+	for _, seq := range p {
+		lengths = append(lengths, len(seq))
+	}
+	return lengths
 }
 
-func (p ByWord) EqualAtIndices(i, j int) bool {
-	return p.A[i] == p.B[j]
+func (p ByWord) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
+func (p ByWord) Equal(i, j int) bool {
+	return p[0][i] == p[1][j]
+}
+
+func (p ByWord) Pair(i, j int) Sequence {
+	return ByWord{p[i], p[j]}
 }

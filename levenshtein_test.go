@@ -5,14 +5,14 @@ import (
 )
 
 func TestByLetter(t *testing.T) {
-	distance := LevenshteinDistance(ByLetter{"hello", "hippo"})
+	distance := Distance(ByLetter{"hello", "hippo"})
 	if distance != 3 {
 		t.Errorf(`"hello" to "hippo" is %d letter edits instead of 3`, distance)
 	}
 }
 
 func TestByWord(t *testing.T) {
-	distance := LevenshteinDistance(ByWord{
+	distance := Distance(ByWord{
 		[]string{"some", "words", "are", "here"},
 		[]string{"no", "words", "were", "here"},
 	})
